@@ -5,6 +5,7 @@ import { extractText, getDocumentProxy } from "unpdf";
 import { buildPrompt, responseSchema } from "./prompt";
 import { getRule } from "./rules";
 import { findQuote, normalizeWithMap } from "./quoteCheck";
+import { buildSummary, type Summary } from "./summary";
 
 /** One flag, in the shared JSON shape agreed with the frontend. */
 export type Match = {
@@ -24,6 +25,7 @@ export type CheckResult = {
   leaseText: string;
   matches: Match[];
   droppedCount: number; // Gemini quotes that failed the quote check
+  summary: Summary; // final verdict, questions to ask and next steps (built by code, not Gemini)
   // Extra fields (safe to ignore):
   verifiedAgainst: "pdf_text" | "gemini_transcript";
   model: string;
@@ -83,7 +85,8 @@ export async function analyzeLease(file: Buffer | Uint8Array, mimeType: string):
   const verifiedAgainst = usePdfText ? "pdf_text" : "gemini_transcript";
 
   const { matches, droppedCount } = verifyMatches(leaseText, output.matches ?? []);
-  return { leaseText, matches, droppedCount, verifiedAgainst, model };
+  const summary = buildSummary(matches);
+  return { leaseText, matches, droppedCount, summary, verifiedAgainst, model };
 }
 
 /** Main model first, then fallbacks, without duplicates. */
