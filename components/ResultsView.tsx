@@ -6,6 +6,8 @@ import { buildSegments } from "@/lib/highlight";
 import FlagCard, { cardSpeechText } from "./FlagCard";
 import Disclaimer from "./Disclaimer";
 import { useReadAloud } from "./useReadAloud";
+import SummaryPanel, { summarySpeechText } from "./SummaryPanel";
+import { buildSummary } from "@/lib/summary";
 
 interface Props {
   result: CheckResult;
@@ -28,6 +30,9 @@ export default function ResultsView({ result, fileName, savedAt, onReset }: Prop
       return (ia === -1 ? Infinity : ia) - (ib === -1 ? Infinity : ib);
     });
   }, [result]);
+
+  // Older saved reports and the mock files have no summary: build it here.
+  const overview = useMemo(() => result.summary ?? buildSummary(result.matches), [result]);
 
   const segments = useMemo(() => buildSegments(result.leaseText, matches), [result, matches]);
   const highlighted = useMemo(
@@ -90,9 +95,6 @@ export default function ResultsView({ result, fileName, savedAt, onReset }: Prop
           <h2 id="summary-title" ref={headingRef} tabIndex={-1}>
             {summary}
           </h2>
-          {n === 0 && (
-            <p className="lc-summary-sub">Good sign, but not a guarantee.</p>
-          )}
           {result.droppedCount > 0 && (
             <p className="lc-fineprint">
               {result.droppedCount} unverified {result.droppedCount === 1 ? "match" : "matches"} removed
@@ -103,6 +105,13 @@ export default function ResultsView({ result, fileName, savedAt, onReset }: Prop
           Check another lease
         </button>
       </section>
+
+      <SummaryPanel
+        summary={overview}
+        speaking={speakingId === "summary"}
+        canSpeak={supported}
+        onSpeak={() => toggle("summary", summarySpeechText(overview))}
+      />
 
       <div className={`lc-grid ${n === 0 ? "is-empty" : ""}`}>
         <section className="lc-lease" aria-labelledby="lease-title">

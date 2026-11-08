@@ -20,10 +20,16 @@ export interface Match {
   source_url: string;
 }
 
+export type { Summary } from "./summary";
+import type { Summary } from "./summary";
+
 export interface CheckResult {
   leaseText: string;
   matches: Match[];
   droppedCount: number;
+  // Final verdict, questions and next steps (Samuel, lib/summary.ts).
+  // Optional: older saved reports and the mock files don't have it.
+  summary?: Summary;
 }
 
 // Server-side only (Arya → Samuel): what /api/check hands to analyzeLease().
