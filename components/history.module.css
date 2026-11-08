@@ -1,0 +1,80 @@
+/* Owner: Arya — History tab styles. Uses James's --lc-* colour tokens from
+   app/leasecheck.css, so light, dark and high contrast all work. */
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 0 4px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  font: inherit;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: var(--lc-border-w) solid var(--lc-line);
+  background: var(--lc-surface);
+  color: var(--lc-ink);
+  cursor: pointer;
+}
+.tab[aria-current="page"] {
+  background: var(--lc-accent);
+  color: var(--lc-accent-ink);
+  border-color: var(--lc-accent);
+}
+.tab:disabled { opacity: 0.6; cursor: not-allowed; }
+.tab:focus-visible,
+.btn:focus-visible { outline: 3px solid var(--lc-focus); outline-offset: 2px; }
+
+.wrap { display: grid; gap: 16px; padding: 16px 0 40px; }
+.wrap h1 { font-size: 1.8rem; }
+.wrap h1:focus { outline: none; }
+.sub { color: var(--lc-muted); }
+
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--lc-surface);
+  border: var(--lc-border-w) solid var(--lc-line);
+  border-radius: var(--lc-radius);
+  padding: 12px 16px;
+}
+.info { flex: 1; min-width: 200px; display: grid; gap: 2px; }
+.name { font-weight: 700; overflow-wrap: anywhere; }
+.meta { color: var(--lc-muted); font-size: 0.95rem; }
+.flags { font-weight: 600; }
+.flags.hasFlags { color: var(--lc-warn-line); }
+
+.actions { display: flex; gap: 8px; }
+.btn {
+  font: inherit;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: var(--lc-border-w) solid var(--lc-line);
+  background: var(--lc-surface);
+  color: var(--lc-ink);
+  cursor: pointer;
+}
+.primary { background: var(--lc-accent); color: var(--lc-accent-ink); border-color: var(--lc-accent); }
+.danger { color: var(--lc-error); }
+.btn:disabled { opacity: 0.6; cursor: wait; }
+
+.empty {
+  background: var(--lc-surface);
+  border: var(--lc-border-w) dashed var(--lc-line);
+  border-radius: var(--lc-radius);
+  padding: 24px;
+}
+.error { color: var(--lc-error); font-weight: 600; }
+
+:global(:root[data-contrast="high"]) .item,
+:global(:root[data-contrast="high"]) .tab,
+:global(:root[data-contrast="high"]) .btn { border-width: 2px; }

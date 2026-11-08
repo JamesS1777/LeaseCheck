@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth0";
 import { analyzeLease, LeaseCheckError } from "@/lib/analyzeLease";
+import { saveReport } from "@/lib/reports";
 
 export const maxDuration = 60; // Gemini can take ~30 s
 
@@ -44,6 +45,14 @@ export async function POST(req: Request) {
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const result = await analyzeLease(bytes, file.type);
+
+    // Save to the user's History (Arya). A failed save never blocks the result.
+    try {
+      saveReport(session.user.sub, file.name, result);
+    } catch (saveErr) {
+      console.error("[/api/check] couldn't save report to history:", saveErr);
+    }
+
     return NextResponse.json(result);
   } catch (err) {
     console.error("[/api/check]", err);
