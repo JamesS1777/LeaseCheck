@@ -232,32 +232,43 @@ a { color: var(--lc-accent); text-underline-offset: 3px; }
   vertical-align: 0.1em;
 }
 
-.lc-cards { display: grid; gap: 16px; }
+.lc-cards { display: grid; gap: 10px; }
 .lc-card {
   background: var(--lc-surface);
   border: var(--lc-border-w) solid var(--lc-line); border-radius: var(--lc-radius);
-  padding: 18px 20px;
-  display: grid; gap: 14px;
+  padding: 12px 16px;
+  display: grid; gap: 12px;
   scroll-margin: 24px;
 }
-.lc-card.is-active { border-color: var(--lc-warn-line); box-shadow: 0 0 0 3px var(--lc-mark-active); }
-:root[data-contrast="high"] .lc-card.is-active { box-shadow: 0 0 0 4px #000; }
+.lc-card.is-open { border-color: var(--lc-warn-line); }
+:root[data-contrast="high"] .lc-card.is-open { border-width: 3px; }
 .lc-card:focus { outline: none; }
 .lc-card:focus-visible { outline: 3px solid var(--lc-focus); }
 .lc-card-head { display: flex; align-items: center; gap: 12px; }
-.lc-card-head h3 { flex: 1; font-size: 1.2rem; }
+.lc-card-head h3 { flex: 1; font-size: 1.15rem; }
+.lc-card-toggle {
+  font: inherit; font-weight: 700; color: inherit;
+  width: 100%; min-height: 48px;
+  display: flex; align-items: center; gap: 12px;
+  background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
+}
+.lc-card-name { flex: 1; }
+.lc-chevron { font-size: 1.6rem; line-height: 1; color: var(--lc-muted); transition: transform 0.15s; }
+.lc-card.is-open .lc-chevron { transform: rotate(90deg); }
 .lc-badge {
   flex: none; display: grid; place-items: center;
   width: 32px; height: 32px; border-radius: 50%;
   background: var(--lc-ink); color: var(--lc-bg); font-weight: 700; font-size: 0.9rem;
 }
-.lc-card-section { display: grid; gap: 4px; }
-.lc-card-section h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--lc-muted); }
+.lc-card-body { display: grid; gap: 12px; }
+.lc-card-body[hidden] { display: none; }
 .lc-quote {
   margin: 0; padding: 8px 12px;
   background: var(--lc-mark); border-radius: 6px;
   font-family: Georgia, "Times New Roman", serif;
 }
 :root[data-contrast="high"] .lc-quote { border: 2px solid #000; }
+.lc-ask { border-left: 4px solid var(--lc-accent); padding-left: 12px; }
+.lc-ask-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--lc-muted); }
 .lc-ask p { font-weight: 600; }
-.lc-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 10px; border-top: var(--lc-border-w) solid var(--lc-line); font-size: 0.95rem; }
+.lc-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 0.95rem; }

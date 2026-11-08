@@ -47,9 +47,9 @@ export default function UploadForm({ onSubmit, error }: Props) {
       >
         <span className="lc-drop-icon" aria-hidden="true">📄</span>
         <span className="lc-drop-title">
-          {file ? file.name : "Choose your lease, or drop it here"}
+          {file ? file.name : "Choose a file or drop it here"}
         </span>
-        <span className="lc-drop-hint">PDF or a phone photo · up to 10 MB</span>
+        <span className="lc-drop-hint">PDF or photo</span>
         <input
           ref={inputRef}
           id="lease-file"
@@ -71,9 +71,6 @@ export default function UploadForm({ onSubmit, error }: Props) {
       <button type="submit" className="lc-btn lc-btn-primary lc-btn-big" disabled={!file}>
         Check my lease
       </button>
-      <p className="lc-fineprint">
-        Your lease stays private to your account. It takes about 30 seconds.
-      </p>
     </form>
   );
 }

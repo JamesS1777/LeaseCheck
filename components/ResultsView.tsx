@@ -35,6 +35,16 @@ export default function ResultsView({ result, fileName, onReset }: Props) {
   );
 
   const [active, setActive] = useState<number | null>(null);
+  const [open, setOpen] = useState<Set<number>>(() => new Set());
+
+  function setCardOpen(i: number, value: boolean) {
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (value) next.add(i);
+      else next.delete(i);
+      return next;
+    });
+  }
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const markRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -47,6 +57,7 @@ export default function ResultsView({ result, fileName, onReset }: Props) {
 
   function goToCard(i: number) {
     setActive(i);
+    setCardOpen(i, true);
     const el = cardRefs.current[i];
     el?.scrollIntoView({ behavior: "smooth", block: "center" });
     el?.focus({ preventScroll: true });
@@ -73,16 +84,12 @@ export default function ResultsView({ result, fileName, onReset }: Props) {
           <h2 id="summary-title" ref={headingRef} tabIndex={-1}>
             {summary}
           </h2>
-          <p className="lc-summary-sub">
-            {n === 0
-              ? "That's a good sign, but it isn't a guarantee. LeaseCheck only checks the rules on its list."
-              : "Tap a highlighted clause to see what it means and what to ask before you sign."}
-          </p>
+          {n === 0 && (
+            <p className="lc-summary-sub">Good sign, but not a guarantee.</p>
+          )}
           {result.droppedCount > 0 && (
             <p className="lc-fineprint">
-              {result.droppedCount} possible {result.droppedCount === 1 ? "match was" : "matches were"}{" "}
-              left out because {result.droppedCount === 1 ? "it" : "they"} didn&apos;t appear word for
-              word in your lease.
+              {result.droppedCount} unverified {result.droppedCount === 1 ? "match" : "matches"} removed
             </p>
           )}
         </div>
@@ -90,8 +97,6 @@ export default function ResultsView({ result, fileName, onReset }: Props) {
           Check another lease
         </button>
       </section>
-
-      <Disclaimer />
 
       <div className={`lc-grid ${n === 0 ? "is-empty" : ""}`}>
         <section className="lc-lease" aria-labelledby="lease-title">
@@ -126,7 +131,7 @@ export default function ResultsView({ result, fileName, onReset }: Props) {
 
         {n > 0 && (
           <section className="lc-cards" aria-labelledby="cards-title">
-            <h2 id="cards-title" className="lc-panel-title">What to ask about</h2>
+            <h2 id="cards-title" className="lc-panel-title">Tap a clause to see why</h2>
             {matches.map((m, i) => (
               <FlagCard
                 key={`${m.rule_id}-${i}`}
@@ -135,7 +140,11 @@ export default function ResultsView({ result, fileName, onReset }: Props) {
                 }}
                 match={m}
                 number={i + 1}
-                active={active === i}
+                open={open.has(i)}
+                onToggle={() => {
+                  setActive(i);
+                  setCardOpen(i, !open.has(i));
+                }}
                 speaking={speakingId === `card-${i}`}
                 canSpeak={supported}
                 hasHighlight={highlighted.has(i)}

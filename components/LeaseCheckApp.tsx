@@ -54,10 +54,7 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
         {state.step === "upload" && (
           <section className="lc-hero" aria-labelledby="hero-title">
             <h1 id="hero-title">Know what you&apos;re signing before you sign it.</h1>
-            <p className="lc-lede">
-              Upload your rental lease. In about 30 seconds, LeaseCheck flags clauses that may break
-              Ontario tenant rules and tells you what to ask your landlord.
-            </p>
+            <p className="lc-lede">Upload your lease. We&apos;ll flag anything that may break Ontario rules.</p>
             <UploadForm onSubmit={handleSubmit} error={state.error} />
             <Disclaimer />
           </section>

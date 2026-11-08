@@ -1,9 +1,7 @@
 export default function Disclaimer() {
   return (
-    <aside className="lc-disclaimer" aria-label="Disclaimer">
-      <strong>Not legal advice.</strong> LeaseCheck flags clauses worth asking about and links to
-      official sources. It can miss things. For advice on your situation, contact a community legal
-      clinic or the Landlord and Tenant Board.
-    </aside>
+    <p className="lc-disclaimer" role="note">
+      <strong>Not legal advice.</strong> LeaseCheck flags things worth asking about. It can miss things.
+    </p>
   );
 }

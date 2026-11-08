@@ -6,44 +6,45 @@ import type { Match } from "@/lib/types";
 interface Props {
   match: Match;
   number: number;
-  active: boolean;
+  open: boolean;
   speaking: boolean;
   canSpeak: boolean;
   hasHighlight: boolean;
+  onToggle: () => void;
   onSpeak: () => void;
   onShowInLease: () => void;
 }
 
 export function cardSpeechText(m: Match) {
-  return `${m.name}. The lease says: ${m.quote}. What it means: ${m.explanation} Question to ask your landlord: ${m.question}`;
-}
-
-function sourceLabel(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return "Official source";
-  }
+  return `${m.name}. Your lease says: ${m.quote} ${m.explanation} Ask your landlord: ${m.question}`;
 }
 
 const FlagCard = forwardRef<HTMLElement, Props>(function FlagCard(
-  { match, number, active, speaking, canSpeak, hasHighlight, onSpeak, onShowInLease },
+  { match, number, open, speaking, canSpeak, hasHighlight, onToggle, onSpeak, onShowInLease },
   ref,
 ) {
-  const titleId = `flag-${number}-title`;
+  const bodyId = `flag-${number}-body`;
   return (
     <article
       ref={ref}
       id={`flag-${number}`}
       tabIndex={-1}
-      className={`lc-card ${active ? "is-active" : ""}`}
-      aria-labelledby={titleId}
+      className={`lc-card ${open ? "is-open" : ""}`}
     >
-      <header className="lc-card-head">
-        <span className="lc-badge" aria-hidden="true">{number}</span>
-        <h3 id={titleId}>
-          <span className="lc-sr">Flag {number}: </span>
-          {match.name}
+      <div className="lc-card-head">
+        <h3>
+          <button
+            type="button"
+            className="lc-card-toggle"
+            aria-expanded={open}
+            aria-controls={bodyId}
+            onClick={onToggle}
+          >
+            <span className="lc-badge" aria-hidden="true">{number}</span>
+            <span className="lc-sr">Flag {number}: </span>
+            <span className="lc-card-name">{match.name}</span>
+            <span className="lc-chevron" aria-hidden="true">›</span>
+          </button>
         </h3>
         {canSpeak && (
           <button
@@ -56,35 +57,27 @@ const FlagCard = forwardRef<HTMLElement, Props>(function FlagCard(
             <span aria-hidden="true">{speaking ? "■" : "🔊"}</span>
           </button>
         )}
-      </header>
+      </div>
 
-      <div className="lc-card-section">
-        <h4>Your lease says</h4>
+      <div id={bodyId} className="lc-card-body" hidden={!open}>
         <blockquote className="lc-quote">“{match.quote}”</blockquote>
-      </div>
-
-      <div className="lc-card-section">
-        <h4>What it means</h4>
         <p>{match.explanation}</p>
+        <div className="lc-ask">
+          <span className="lc-ask-label">Ask your landlord</span>
+          <p>{match.question}</p>
+        </div>
+        <div className="lc-card-foot">
+          <a href={match.source_url} target="_blank" rel="noopener noreferrer">
+            Source<span className="lc-sr"> (opens in a new tab)</span>
+            <span aria-hidden="true"> ↗</span>
+          </a>
+          {hasHighlight && (
+            <button type="button" className="lc-link-btn" onClick={onShowInLease}>
+              Show in lease
+            </button>
+          )}
+        </div>
       </div>
-
-      <div className="lc-card-section lc-ask">
-        <h4>Ask your landlord</h4>
-        <p>{match.question}</p>
-      </div>
-
-      <footer className="lc-card-foot">
-        <a href={match.source_url} target="_blank" rel="noopener noreferrer">
-          Why it&apos;s flagged: {sourceLabel(match.source_url)}
-          <span className="lc-sr"> (opens in a new tab)</span>
-          <span aria-hidden="true"> ↗</span>
-        </a>
-        {hasHighlight && (
-          <button type="button" className="lc-link-btn" onClick={onShowInLease}>
-            Show in lease
-          </button>
-        )}
-      </footer>
     </article>
   );
 });
