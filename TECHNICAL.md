@@ -85,9 +85,11 @@ Each rule's `what_to_flag` also says what **not** to flag (for example, a tenant
 |---|---|
 | `npx tsx --test scripts/*.test.ts` | Quote check (paraphrases, invented clauses and ellipses are dropped) and the full pipeline on the real PDF text layer, without calling Gemini |
 | `npx tsx --env-file=.env.local scripts/check-lease.ts test-leases/bad-lease.pdf` | Live run with Gemini; prints PASS/FAIL against the expected flags |
-| Same command on `test-leases/standard-lease.pdf` | False-alarm test: the official Ontario Standard Lease should raise nothing |
+| Same command on `test-leases/clean-lease.pdf` | False-alarm test: the same lease with every illegal clause made legal. Only `not_standard_lease` should be flagged |
 
-`test-leases/bad-lease.pdf` is a fictional 2-page lease with 6 planted illegal clauses and 5 legal decoys (rent deposit, key deposit, tenant pays for damage they cause, 24-hour entry notice, keeping the unit clean). Expected result: the 6 planted clauses plus `not_standard_lease`. Rebuild it with `python3 scripts/make_test_lease.py`.
+`test-leases/bad-lease.pdf` is a fictional 2-page lease with 6 planted illegal clauses and 5 legal decoys (rent deposit, key deposit, tenant pays for damage they cause, 24-hour entry notice, keeping the unit clean). Expected result: the 6 planted clauses plus `not_standard_lease`. `test-leases/clean-lease.pdf` is the same lease with the 6 clauses replaced by legal ones. Rebuild both with `python3 scripts/make_test_lease.py`.
+
+**Interactive Adobe forms.** The official Ontario lease download is a "dynamic" Adobe (XFA) form: anything but Acrobat sees only a "Please wait..." placeholder. LeaseCheck detects this and tells the user to upload a filled-in copy, a scan or a photo instead (HTTP 422 with a user-facing `error` message), rather than checking a blank page.
 
 ## Configuration
 

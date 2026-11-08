@@ -20,7 +20,10 @@ const EXPECTED: Record<string, string[]> = {
     "not_standard_lease", "post_dated_cheques", "illegal_deposit", "no_pets",
     "tenant_repairs", "forced_cleaning", "end_anytime",
   ],
-  "standard-lease.pdf": [], // the official Ontario form: should raise nothing
+  // Same lease with every illegal clause made legal. It still isn't on the
+  // official form, so that one flag is correct.
+  "clean-lease.pdf": ["not_standard_lease"],
+  "standard-lease.pdf": [], // a flattened copy of the official Ontario form
 };
 
 async function main() {

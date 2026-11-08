@@ -30,9 +30,18 @@ export type CheckResult = {
 };
 
 export class LeaseCheckError extends Error {
-  constructor(message: string, public status: number = 502) {
+  /** userFacing: the message is written for the person uploading and safe to show them. */
+  constructor(message: string, public status: number = 502, public userFacing: boolean = false) {
     super(message);
   }
+}
+
+/**
+ * Adobe "dynamic" (XFA) forms, like the official Ontario lease download,
+ * show only a "Please wait..." placeholder to anything but Acrobat.
+ */
+export function isInteractiveFormPlaceholder(text: string): boolean {
+  return /please wait/i.test(text) && /adobe reader/i.test(text) && text.length < 3000;
 }
 
 export const DEFAULT_MODEL = "gemini-3.8-flash";
@@ -56,6 +65,14 @@ export async function analyzeLease(file: Buffer | Uint8Array, mimeType: string):
   // Photos and scanned PDFs have no text layer, so for those Gemini also
   // transcribes the page and quotes are checked against that transcript.
   const pdfText = mimeType === "application/pdf" ? await extractPdfText(bytes) : null;
+  if (pdfText !== null && isInteractiveFormPlaceholder(pdfText)) {
+    throw new LeaseCheckError(
+      "This PDF is an interactive form that only opens in Adobe Acrobat, so we can't read it. " +
+        "Upload a filled-in copy, a scan or a photo of the lease instead.",
+      422,
+      true,
+    );
+  }
   const usePdfText = pdfText !== null && pdfText.replace(/\s/g, "").length >= 200;
 
   // Skipping the transcript when we already have the text is the big speed

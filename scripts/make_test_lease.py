@@ -1,6 +1,8 @@
-"""Builds test-leases/bad-lease.pdf: a FICTIONAL 2-page lease with 6 planted
-illegal clauses mixed in with normal, legal ones (decoys that must NOT be
-flagged). Run: python3 scripts/make_test_lease.py  (needs: pip install reportlab)
+"""Builds two FICTIONAL 2-page test leases (needs: pip install reportlab):
+  test-leases/bad-lease.pdf    6 planted illegal clauses mixed with legal decoys
+  test-leases/clean-lease.pdf  the same lease with every illegal clause made legal;
+                               only `not_standard_lease` should be flagged
+Run: python3 scripts/make_test_lease.py
 """
 from pathlib import Path
 from reportlab.lib.pagesizes import letter
@@ -8,7 +10,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
-OUT = Path(__file__).resolve().parent.parent / "test-leases" / "bad-lease.pdf"
+DIR = Path(__file__).resolve().parent.parent / "test-leases"
 
 # (heading, text). Planted clauses are marked with a comment for the team;
 # the marker never appears in the PDF.
@@ -47,8 +49,36 @@ CLAUSES = [
 ]
 
 
+# Legal replacements for the planted clauses, used for clean-lease.pdf.
+CLEAN = {
+    "5. Payment Method": "The Tenant may pay rent by e-transfer, cheque or another method agreed with the Landlord.",
+    "7. Damage Deposit": None,  # removed entirely
+    "10. Pets": "The Tenant is responsible for any damage or disturbance caused by a pet kept in the Premises.",
+    "11. Repairs": "The Landlord shall keep the Premises in a good state of repair. The Tenant shall promptly report any needed repairs to the Landlord.",
+    "15. Move-Out Cleaning": "Upon moving out, the Tenant shall leave the Premises in a reasonably clean condition.",
+    "18. Termination": "Either party may end this tenancy only as permitted by the Residential Tenancies Act, 2006.",
+}
+
+
+def clean_clauses():
+    out = []
+    for h, t in CLAUSES:
+        if h in CLEAN:
+            if CLEAN[h] is None:
+                continue
+            t = CLEAN[h]
+        out.append((h, t))
+    # Renumber so the headings stay in order after the removed clause.
+    return [(f"{i}. {h.split('. ', 1)[1]}", t) for i, (h, t) in enumerate(out, 1)]
+
+
 def build() -> None:
-    OUT.parent.mkdir(parents=True, exist_ok=True)
+    write(DIR / "bad-lease.pdf", CLAUSES)
+    write(DIR / "clean-lease.pdf", clean_clauses())
+
+
+def write(out: Path, clauses) -> None:
+    out.parent.mkdir(parents=True, exist_ok=True)
     styles = getSampleStyleSheet()
     title = ParagraphStyle("t", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=17, spaceAfter=4)
     sub = ParagraphStyle("s", parent=styles["Normal"], fontName="Helvetica-Oblique", fontSize=9,
@@ -60,7 +90,7 @@ def build() -> None:
         Paragraph("RESIDENTIAL LEASE AGREEMENT", title),
         Paragraph("SAMPLE LEASE FOR TESTING ONLY. All names and addresses are fictional.", sub),
     ]
-    for h, t in CLAUSES:
+    for h, t in clauses:
         story += [Paragraph(h, head), Paragraph(t, body)]
     story += [
         Spacer(1, 22),
@@ -79,10 +109,10 @@ def build() -> None:
         canvas.drawRightString(letter[0] - inch, 0.6 * inch, f"Page {doc.page}")
         canvas.restoreState()
 
-    SimpleDocTemplate(str(OUT), pagesize=letter, leftMargin=inch, rightMargin=inch,
+    SimpleDocTemplate(str(out), pagesize=letter, leftMargin=inch, rightMargin=inch,
                       topMargin=0.9 * inch, bottomMargin=0.9 * inch,
                       title="Residential Lease Agreement (sample)").build(story, onFirstPage=footer, onLaterPages=footer)
-    print(f"wrote {OUT}")
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":

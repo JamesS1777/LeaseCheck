@@ -49,9 +49,10 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("[/api/check]", err);
     const status = err instanceof LeaseCheckError ? err.status : 500;
-    return NextResponse.json(
-      { error: "We couldn't check this lease right now. Please try again in a minute." },
-      { status },
-    );
+    const message =
+      err instanceof LeaseCheckError && err.userFacing
+        ? err.message
+        : "We couldn't check this lease right now. Please try again in a minute.";
+    return NextResponse.json({ error: message }, { status });
   }
 }

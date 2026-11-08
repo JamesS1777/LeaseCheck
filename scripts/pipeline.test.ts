@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { extractPdfText, verifyMatches } from "../lib/analyzeLease";
+import { extractPdfText, isInteractiveFormPlaceholder, verifyMatches } from "../lib/analyzeLease";
 
 test("bad lease: real quotes are kept, made-up and unknown ones dropped", async () => {
   const pdf = await readFile(new URL("../test-leases/bad-lease.pdf", import.meta.url));
@@ -34,5 +34,15 @@ test("bad lease: real quotes are kept, made-up and unknown ones dropped", async 
   for (const m of matches) {
     assert.equal(text!.slice(m.start, m.end), m.quote, "quote must be an exact slice of leaseText");
     assert.ok(m.explanation && m.question && m.source_url.startsWith("https://"));
+  }
+});
+
+test("spots the Adobe interactive-form placeholder, but not a real lease", async () => {
+  const placeholder = "Please wait...\nIf this message is not eventually replaced by the proper contents of the document, your PDF viewer may not be able to display this type of document.\nYou can upgrade to the latest version of Adobe Reader for Windows, Mac, or Linux by visiting http://www.adobe.com/go/reader_download.";
+  assert.equal(isInteractiveFormPlaceholder(placeholder), true);
+  for (const name of ["bad-lease.pdf", "clean-lease.pdf"]) {
+    const pdf = await readFile(new URL(`../test-leases/${name}`, import.meta.url));
+    const text = await extractPdfText(new Uint8Array(pdf));
+    assert.equal(isInteractiveFormPlaceholder(text!), false, name);
   }
 });
