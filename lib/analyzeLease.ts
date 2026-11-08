@@ -36,8 +36,10 @@ export class LeaseCheckError extends Error {
 }
 
 export const DEFAULT_MODEL = "gemini-3.8-flash";
+// Tried in order if the main model is overloaded, rate-limited or unavailable.
+export const DEFAULT_FALLBACKS = ["gemini-3.6-flash", "gemini-3.1-flash-lite"];
 
-type GeminiOutput = { leaseText: string; matches: { rule_id: string; quote: string }[] };
+type GeminiOutput = { leaseText?: string; matches: { rule_id: string; quote: string }[] };
 
 /**
  * Check a lease file (PDF or image bytes) and return verified flags.
@@ -46,24 +48,34 @@ type GeminiOutput = { leaseText: string; matches: { rule_id: string; quote: stri
 export async function analyzeLease(file: Buffer | Uint8Array, mimeType: string): Promise<CheckResult> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new LeaseCheckError("GEMINI_API_KEY is not set on the server", 500);
-  const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
+  const models = modelList();
   const bytes = file instanceof Uint8Array ? file : new Uint8Array(file);
 
-  // Run Gemini and local PDF text extraction at the same time.
-  const [gemini, pdfText] = await Promise.all([
-    askGemini(apiKey, model, bytes, mimeType),
-    mimeType === "application/pdf" ? extractPdfText(bytes) : Promise.resolve(null),
-  ]);
-
-  // Verify quotes against text the AI didn't write whenever we can: the
-  // PDF's own text layer. Photos and scanned PDFs have no text layer, so
-  // fall back to Gemini's transcript of the page.
+  // Read the PDF's own text layer first (takes well under a second).
+  // Quotes are verified against text the AI didn't write whenever we can.
+  // Photos and scanned PDFs have no text layer, so for those Gemini also
+  // transcribes the page and quotes are checked against that transcript.
+  const pdfText = mimeType === "application/pdf" ? await extractPdfText(bytes) : null;
   const usePdfText = pdfText !== null && pdfText.replace(/\s/g, "").length >= 200;
-  const leaseText = usePdfText ? pdfText : gemini.leaseText ?? "";
+
+  // Skipping the transcript when we already have the text is the big speed
+  // win: Gemini only has to write the short list of matches.
+  const { output, model } = await askGemini(apiKey, models, bytes, mimeType, !usePdfText);
+
+  const leaseText = usePdfText ? pdfText! : output.leaseText ?? "";
   const verifiedAgainst = usePdfText ? "pdf_text" : "gemini_transcript";
 
-  const { matches, droppedCount } = verifyMatches(leaseText, gemini.matches ?? []);
+  const { matches, droppedCount } = verifyMatches(leaseText, output.matches ?? []);
   return { leaseText, matches, droppedCount, verifiedAgainst, model };
+}
+
+/** Main model first, then fallbacks, without duplicates. */
+function modelList(): string[] {
+  const main = process.env.GEMINI_MODEL || DEFAULT_MODEL;
+  const fallbacks = process.env.GEMINI_FALLBACK_MODELS
+    ? process.env.GEMINI_FALLBACK_MODELS.split(",").map((m) => m.trim()).filter(Boolean)
+    : DEFAULT_FALLBACKS;
+  return [...new Set([main, ...fallbacks])];
 }
 
 /**
@@ -107,43 +119,47 @@ export function verifyMatches(
   return { matches, droppedCount };
 }
 
-async function askGemini(apiKey: string, model: string, bytes: Uint8Array, mimeType: string): Promise<GeminiOutput> {
+async function askGemini(
+  apiKey: string,
+  models: string[],
+  bytes: Uint8Array,
+  mimeType: string,
+  transcribe: boolean,
+): Promise<{ output: GeminiOutput; model: string }> {
   const ai = new GoogleGenAI({ apiKey });
-  const request = {
-    model,
-    contents: [
-      {
-        role: "user",
-        parts: [
-          { inlineData: { mimeType, data: Buffer.from(bytes).toString("base64") } },
-          { text: buildPrompt() },
-        ],
-      },
-    ],
-    config: {
-      temperature: 0,
-      responseMimeType: "application/json",
-      responseJsonSchema: responseSchema(),
+  const contents = [
+    {
+      role: "user",
+      parts: [
+        { inlineData: { mimeType, data: Buffer.from(bytes).toString("base64") } },
+        { text: buildPrompt({ transcribe }) },
+      ],
     },
+  ];
+  const config = {
+    temperature: 0,
+    responseMimeType: "application/json",
+    responseJsonSchema: responseSchema({ transcribe }),
   };
 
-  // One retry covers the occasional 429/503 or malformed JSON.
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  // Each model gets one try. A busy, rate-limited or unavailable model, or
+  // a malformed answer, moves on to the next model in the list.
+  const failures: string[] = [];
+  for (const model of models) {
     try {
-      const response = await ai.models.generateContent(request);
+      const response = await ai.models.generateContent({ model, contents, config });
       const parsed = JSON.parse(response.text ?? "") as GeminiOutput;
-      if (typeof parsed.leaseText !== "string" || !Array.isArray(parsed.matches)) {
+      if (!Array.isArray(parsed.matches) || (transcribe && typeof parsed.leaseText !== "string")) {
         throw new Error("Gemini returned JSON in the wrong shape");
       }
-      return parsed;
+      return { output: parsed, model };
     } catch (err) {
-      lastError = err;
-      if (attempt === 0) await new Promise((r) => setTimeout(r, 1500));
+      const detail = err instanceof Error ? err.message : String(err);
+      failures.push(`${model}: ${detail.slice(0, 200)}`);
+      console.warn(`[analyzeLease] ${model} failed, trying the next model. ${detail.slice(0, 200)}`);
     }
   }
-  const detail = lastError instanceof Error ? lastError.message : String(lastError);
-  throw new LeaseCheckError(`Gemini check failed: ${detail}`);
+  throw new LeaseCheckError(`Gemini check failed on every model. ${failures.join(" | ")}`);
 }
 
 /** The PDF's own text layer, or null if it can't be read (e.g. a scan). */
