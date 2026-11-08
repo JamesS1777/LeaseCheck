@@ -19,7 +19,7 @@ LeaseCheck reads an Ontario rental lease (PDF or photo) and flags clauses that m
 1. The browser sends the file to `POST /api/check` as multipart form data (field `file`). The route rejects anyone without an Auth0 session, then checks the file type (PDF, JPG, PNG, WEBP, HEIC) and size (15 MB max).
 2. For PDFs, `analyzeLease()` in `lib/analyzeLease.ts` first reads the PDF's own text layer with `unpdf` (well under a second).
 3. It sends the file to Gemini as inline data (base64 + MIME type) with the prompt in `lib/prompt.ts`, at temperature 0, constrained by a JSON schema. The prompt lists only each rule's `id`, `name` and `what_to_flag`. Gemini returns `{ matches: [{ rule_id, quote }] }`. Only when there is no usable text layer (photos, scanned PDFs) does Gemini also return `leaseText`, a transcript of the page. Skipping the transcript for normal PDFs is what keeps a check fast.
-   - **Backup models:** if the main model is overloaded, rate-limited or unavailable, the same request goes to the next model in the list (default: `gemini-3.8-flash`, then `gemini-3.6-flash`, then `gemini-3.1-flash-lite`).
+   - **Backup models:** if the main model is overloaded, rate-limited or unavailable, the same request goes to the next model in the list (default: `gemini-3.6-flash`, then `gemini-3.1-flash-lite`, then `gemini-3.8-flash`). 3.6 Flash is the main model because it checked the test lease in about 9 seconds; 3.8 Flash took 85 to 95 seconds.
 4. **The quote check** (`lib/quoteCheck.ts`). Every quote must be found in the lease text, or it is dropped:
    - It checks against the PDF's own text layer when there is one (`verifiedAgainst: "pdf_text"`), so a made-up clause can't pass just because Gemini also wrote it into its transcript. Photos and scanned PDFs have no text layer, so those fall back to Gemini's transcript (`"gemini_transcript"`).
    - Matching ignores only spacing, line breaks, letter case, curly vs straight quotes and dash styles. A paraphrase, an invented clause, a quote with "..." or an unknown rule id fails.
@@ -48,7 +48,7 @@ LeaseCheck reads an Ontario rental lease (PDF or photo) and flags clauses that m
   ],
   "droppedCount": 0,
   "verifiedAgainst": "pdf_text",
-  "model": "gemini-3.8-flash"
+  "model": "gemini-3.6-flash"
 }
 ```
 
@@ -96,8 +96,8 @@ Each rule's `what_to_flag` also says what **not** to flag (for example, a tenant
 | Variable | Required | Notes |
 |---|---|---|
 | `GEMINI_API_KEY` | Yes | From aistudio.google.com |
-| `GEMINI_MODEL` | No | Main model. Defaults to `gemini-3.8-flash` |
-| `GEMINI_FALLBACK_MODELS` | No | Comma-separated backups, tried in order if the main model fails. Defaults to `gemini-3.6-flash,gemini-3.1-flash-lite` |
+| `GEMINI_MODEL` | No | Main model. Defaults to `gemini-3.6-flash` |
+| `GEMINI_FALLBACK_MODELS` | No | Comma-separated backups, tried in order if the main model fails. Defaults to `gemini-3.1-flash-lite,gemini-3.8-flash` |
 
 ## Limits and future work
 

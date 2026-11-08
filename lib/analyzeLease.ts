@@ -44,9 +44,9 @@ export function isInteractiveFormPlaceholder(text: string): boolean {
   return /please wait/i.test(text) && /adobe reader/i.test(text) && text.length < 3000;
 }
 
-export const DEFAULT_MODEL = "gemini-3.8-flash";
+export const DEFAULT_MODEL = "gemini-3.6-flash"; // ~9 s on the test lease; 3.8 Flash took 85-95 s
 // Tried in order if the main model is overloaded, rate-limited or unavailable.
-export const DEFAULT_FALLBACKS = ["gemini-3.6-flash", "gemini-3.1-flash-lite"];
+export const DEFAULT_FALLBACKS = ["gemini-3.1-flash-lite", "gemini-3.8-flash"];
 
 type GeminiOutput = { leaseText?: string; matches: { rule_id: string; quote: string }[] };
 

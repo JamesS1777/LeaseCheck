@@ -2,7 +2,7 @@
 
 Use this to test the prompt in Google AI Studio before (or alongside) the code. It is generated from `lib/prompt.ts`, so it matches what `/api/check` sends.
 
-1. Open aistudio.google.com, start a new chat and pick the same Flash model as `GEMINI_MODEL` (default `gemini-3.8-flash`).
+1. Open aistudio.google.com, start a new chat and pick the same Flash model as `GEMINI_MODEL` (default `gemini-3.6-flash`).
 2. Set temperature to 0.
 3. Turn on **Structured output** and paste the schema below.
 4. Attach `test-leases/bad-lease.pdf` and paste the prompt below as the message.
