@@ -1,6 +1,4 @@
-// Owner: Arya (sign-in check) — the app itself is James's <LeaseCheckApp />.
-// Next 16 "Cache Components" is on: anything that reads cookies (the session)
-// must sit inside <Suspense>, so the static page shell still loads instantly.
+
 import { Suspense } from "react";
 import { auth0 } from "@/lib/auth0";
 import LeaseCheckApp from "@/components/LeaseCheckApp";
