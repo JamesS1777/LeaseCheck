@@ -1,0 +1,54 @@
+{
+  "leaseText": "RESIDENTIAL LEASE AGREEMENT\n\nThis lease is made between Maple Ridge Rentals (the \"Landlord\") and Jordan Sample (the \"Tenant\") for the unit at 123 Example Street, Unit 2, Peterborough, Ontario.\n\n1. TERM. The tenancy begins on September 1, 2026 and continues for twelve (12) months.\n\n2. RENT. Rent is $1,150 per month, due on the first day of each month. Tenant must provide twelve post-dated cheques for the full year before moving in.\n\n3. DEPOSITS. The Tenant will pay last month's rent in advance. Tenant shall pay a $500 damage deposit, refundable at the end of the tenancy if the unit is undamaged.\n\n4. PETS. No pets of any kind are permitted in the unit at any time.\n\n5. REPAIRS. The tenant is responsible for all repairs to the unit and its appliances, regardless of cause.\n\n6. UTILITIES. Tenant pays hydro. Landlord pays water and heat.\n\n7. MOVING OUT. Upon moving out, the Tenant must pay for a professional cleaning service chosen by the Landlord.\n\n8. ENDING THE TENANCY. The Landlord may end this lease at any time for any reason by giving the Tenant notice.\n\n9. KEYS. The Tenant will receive two keys. A refundable key deposit of $40 applies.\n\n10. QUIET ENJOYMENT. The Tenant may use the unit for normal residential purposes.\n\nSigned: ____________________   Date: ____________",
+  "matches": [
+    {
+      "rule_id": "post_dated_cheques",
+      "quote": "Tenant must provide twelve post-dated cheques for the full year before moving in.",
+      "name": "Post-dated cheques required",
+      "explanation": "A lease can't require you to hand over post-dated cheques. That kind of clause is void in Ontario. You can choose another way to pay.",
+      "question": "Can I pay rent another way, like e-transfer or automatic payments, instead of post-dated cheques?",
+      "source_url": "https://www.ontario.ca/page/renting-ontario-your-rights"
+    },
+    {
+      "rule_id": "illegal_deposit",
+      "quote": "Tenant shall pay a $500 damage deposit, refundable at the end of the tenancy if the unit is undamaged.",
+      "name": "Illegal deposit",
+      "explanation": "Ontario landlords can only collect last month's rent and a refundable key deposit. A damage deposit isn't allowed.",
+      "question": "Can we remove the damage deposit, since it isn't allowed in Ontario?",
+      "source_url": "https://www.ontario.ca/page/renting-ontario-your-rights"
+    },
+    {
+      "rule_id": "no_pets",
+      "quote": "No pets of any kind are permitted in the unit at any time.",
+      "name": "No-pets clause",
+      "explanation": "A blanket ban on pets is generally unenforceable in Ontario. There are exceptions, like some condo by-laws.",
+      "question": "Is this unit in a condo with a by-law that bans pets, or can this clause be removed?",
+      "source_url": "https://www.ontario.ca/page/renting-ontario-your-rights"
+    },
+    {
+      "rule_id": "tenant_repairs",
+      "quote": "The tenant is responsible for all repairs to the unit and its appliances, regardless of cause.",
+      "name": "Tenant pays all repairs",
+      "explanation": "Maintenance and repairs are generally the landlord's job in Ontario. You usually only pay for damage you or your guests caused.",
+      "question": "Can we change this so I only pay for damage I cause, and you handle normal repairs?",
+      "source_url": "https://www.ontario.ca/page/renting-ontario-your-rights"
+    },
+    {
+      "rule_id": "forced_cleaning",
+      "quote": "Upon moving out, the Tenant must pay for a professional cleaning service chosen by the Landlord.",
+      "name": "Forced professional cleaning",
+      "explanation": "Making you pay for professional cleaning beyond leaving the place reasonably clean is generally not enforceable.",
+      "question": "If I leave the unit reasonably clean, can we remove the professional cleaning requirement?",
+      "source_url": "https://www.ontario.ca/page/renting-ontario-your-rights"
+    },
+    {
+      "rule_id": "end_anytime",
+      "quote": "The Landlord may end this lease at any time for any reason by giving the Tenant notice.",
+      "name": "Landlord can end the lease anytime",
+      "explanation": "This is void. A landlord can only end a tenancy for reasons and through the process set out in the Residential Tenancies Act.",
+      "question": "Can we remove this clause, since evictions have to follow the Residential Tenancies Act?",
+      "source_url": "https://www.ontario.ca/page/renting-ontario-your-rights"
+    }
+  ],
+  "droppedCount": 1
+}
