@@ -1,71 +1,57 @@
-// Owner: Arya — auth + upload handling. Samuel's AI logic is in lib/analyzeLease.ts.
-//
-// POST /api/check   (multipart/form-data, field name "file" — matches James's UI)
-//   401  not signed in
-//   400  no file / empty file / not a PDF or image
-//   413  file too big
-//   502  the AI check failed
-//   200  CheckResult (see lib/types.ts)
-// Error bodies are { error: "plain-English message" }, safe to show users.
+// POST /api/check — upload a lease (multipart form field "file"), get back
+// the verified flags in the shared JSON shape.
+// Login check uses Arya's Auth0 client in lib/auth0.ts (SDK v4).
+import { NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth0";
-import { analyzeLease } from "@/lib/analyzeLease";
-import { MAX_BYTES, sniffMimeType } from "@/lib/fileCheck";
+import { analyzeLease, LeaseCheckError } from "@/lib/analyzeLease";
 
-export const maxDuration = 60; // Gemini can take ~30s on a long lease
+export const maxDuration = 60; // Gemini can take ~30 s
 
-const json = (body: unknown, status = 200) => Response.json(body, { status });
-const tooBig = () =>
-  json(
-    { error: `That file is too big. The limit is ${Math.round(MAX_BYTES / 1024 / 1024)} MB.` },
-    413,
-  );
+const MAX_BYTES = 15 * 1024 * 1024; // inline Gemini requests cap out near 20 MB
+const ALLOWED_TYPES = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
 
-export async function POST(request: Request) {
-  // 1. Signed in? Leases have names, addresses and signatures — never anonymous.
+export async function POST(req: Request) {
   const session = await auth0.getSession();
-  if (!session) return json({ error: "Please sign in first." }, 401);
+  if (!session) {
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
+  }
 
-  // 2. Reject oversized uploads before reading them (+1 MB for form overhead).
-  const declared = Number(request.headers.get("content-length") ?? 0);
-  if (declared > MAX_BYTES + 1024 * 1024) return tooBig();
-
-  // 3. Read the upload.
   let form: FormData;
   try {
-    form = await request.formData();
+    form = await req.formData();
   } catch {
-    return json({ error: "Upload your lease as a PDF or photo." }, 400);
+    return NextResponse.json({ error: "Send the lease as multipart form data." }, { status: 400 });
   }
+
   const file = form.get("file");
-  if (!(file instanceof File)) {
-    return json({ error: "No file received. Choose a PDF or photo of your lease." }, 400);
+  if (!(file instanceof File) || file.size === 0) {
+    return NextResponse.json({ error: "No file uploaded. Use the form field \"file\"." }, { status: 400 });
   }
-  if (file.size === 0) return json({ error: "That file is empty." }, 400);
-  if (file.size > MAX_BYTES) return tooBig();
-
-  // 4. Check the real type from the file's bytes, not its name or label.
-  const data = Buffer.from(await file.arrayBuffer());
-  const mimeType = sniffMimeType(data);
-  if (!mimeType) {
-    return json(
-      { error: "That doesn't look like a PDF or photo. Try a PDF, JPG, PNG, WebP or HEIC." },
-      400,
-    );
+  if (!ALLOWED_TYPES.has(file.type)) {
+    return NextResponse.json({ error: "Upload a PDF or a photo (JPG, PNG, WEBP or HEIC)." }, { status: 415 });
+  }
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json({ error: "That file is too big. The limit is 15 MB." }, { status: 413 });
   }
 
-  // 5. Hand off to Samuel's checker.
   try {
-    const result = await analyzeLease({ data, mimeType, fileName: file.name });
-    return json(result);
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const result = await analyzeLease(bytes, file.type);
+    return NextResponse.json(result);
   } catch (err) {
-    // Log details for us; give the user a plain message. Never log lease text.
-    console.error(
-      `[api/check] analyzeLease failed for user ${session.user.sub}:`,
-      err instanceof Error ? err.message : err,
-    );
-    return json(
-      { error: "We couldn't check this lease right now. Please try again in a minute." },
-      502,
-    );
+    console.error("[/api/check]", err);
+    const status = err instanceof LeaseCheckError ? err.status : 500;
+    const message =
+      err instanceof LeaseCheckError && err.userFacing
+        ? err.message
+        : "We couldn't check this lease right now. Please try again in a minute.";
+    return NextResponse.json({ error: message }, { status });
   }
 }
