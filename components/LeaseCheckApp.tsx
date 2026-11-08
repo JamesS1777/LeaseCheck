@@ -3,18 +3,20 @@
 import { useState } from "react";
 import type { CheckResult } from "@/lib/types";
 import { checkLease } from "@/lib/checkLease";
+import AppTabs from "./AppTabs";
+import HistoryView from "./HistoryView";
 import UploadForm from "./UploadForm";
 import LoadingState from "./LoadingState";
 import ResultsView from "./ResultsView";
 import Disclaimer from "./Disclaimer";
 import ContrastToggle from "./ContrastToggle";
 import VoicePicker from "./VoicePicker";
-import HistoryList from "./HistoryList";
 
 type State =
   | { step: "upload"; error?: string }
   | { step: "loading"; fileName: string }
-  | { step: "results"; fileName: string; result: CheckResult; savedAt?: number };
+  | { step: "results"; fileName: string; result: CheckResult }
+  | { step: "history" };
 
 /**
  * The whole signed-in experience: upload → loading → results.
@@ -53,6 +55,13 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
         </div>
       </header>
 
+      <AppTabs
+        current={state.step === "history" ? "history" : "new"}
+        disabled={state.step === "loading"}
+        onNew={() => setState({ step: "upload" })}
+        onHistory={() => setState({ step: "history" })}
+      />
+
       <main id="main" className="lc-wrap">
         {state.step === "upload" && (
           <section className="lc-hero" aria-labelledby="hero-title">
@@ -60,11 +69,6 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
             <p className="lc-lede">Upload your lease. We&apos;ll flag anything that may break Ontario rules.</p>
             <UploadForm onSubmit={handleSubmit} error={state.error} />
             <Disclaimer />
-            <HistoryList
-              onOpen={(result, fileName, savedAt) =>
-                setState({ step: "results", fileName, result, savedAt })
-              }
-            />
           </section>
         )}
 
@@ -74,9 +78,12 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
           <ResultsView
             result={state.result}
             fileName={state.fileName}
-            savedAt={state.savedAt}
             onReset={() => setState({ step: "upload" })}
           />
+        )}
+
+        {state.step === "history" && (
+          <HistoryView onOpen={(fileName, result) => setState({ step: "results", fileName, result })} />
         )}
       </main>
     </>

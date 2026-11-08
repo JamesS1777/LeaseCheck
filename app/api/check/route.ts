@@ -46,14 +46,14 @@ export async function POST(req: Request) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const result = await analyzeLease(bytes, file.type);
 
-    // James: save to the user's history. A history failure never breaks the check.
-    let reportId: string | undefined;
+    // Save to the user's History (Arya). A failed save never blocks the result.
     try {
-      reportId = saveReport(session.user.sub, file.name, result);
-    } catch (e) {
-      console.error("[/api/check] couldn't save report:", e instanceof Error ? e.message : e);
+      saveReport(session.user.sub, file.name, result);
+    } catch (saveErr) {
+      console.error("[/api/check] couldn't save report to history:", saveErr);
     }
-    return NextResponse.json({ ...result, reportId });
+
+    return NextResponse.json(result);
   } catch (err) {
     console.error("[/api/check]", err);
     const status = err instanceof LeaseCheckError ? err.status : 500;
