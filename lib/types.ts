@@ -25,3 +25,17 @@ export interface CheckResult {
   matches: Match[];
   droppedCount: number;
 }
+
+// Server-side only (Arya → Samuel): what /api/check hands to analyzeLease().
+export type AllowedMimeType =
+  | "application/pdf"
+  | "image/jpeg"
+  | "image/png"
+  | "image/webp"
+  | "image/heic";
+
+export interface LeaseFile {
+  data: Buffer;
+  mimeType: AllowedMimeType;
+  fileName: string;
+}
