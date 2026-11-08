@@ -17,6 +17,12 @@ export function buildSegments(leaseText: string, matches: Match[]): Segment[] {
   const ranges: { start: number; end: number; matchIndex: number }[] = [];
 
   matches.forEach((m, matchIndex) => {
+    // Samuel's API sends the quote's exact position; use it when it checks out.
+    const { start, end } = m as Match & { start?: number; end?: number };
+    if (typeof start === "number" && typeof end === "number" && start >= 0 && end > start && end <= leaseText.length) {
+      ranges.push({ start, end, matchIndex });
+      return;
+    }
     const words = m.quote.trim().split(/\s+/).filter(Boolean).map(escapeRegExp);
     if (words.length === 0) return;
     const re = new RegExp(words.join("\\s+"));

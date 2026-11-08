@@ -68,7 +68,7 @@ const FlagCard = forwardRef<HTMLElement, Props>(function FlagCard(
         </div>
         <div className="lc-card-foot">
           <a href={match.source_url} target="_blank" rel="noopener noreferrer">
-            Source<span className="lc-sr"> (opens in a new tab)</span>
+            {(match as Match & { source_name?: string }).source_name || "Source"}<span className="lc-sr"> (opens in a new tab)</span>
             <span aria-hidden="true"> ↗</span>
           </a>
           {hasHighlight && (

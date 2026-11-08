@@ -49,7 +49,7 @@ export default function UploadForm({ onSubmit, error }: Props) {
         <span className="lc-drop-title">
           {file ? file.name : "Choose a file or drop it here"}
         </span>
-        <span className="lc-drop-hint">PDF or photo</span>
+        <span className="lc-drop-hint">PDF or photo · up to 15 MB</span>
         <input
           ref={inputRef}
           id="lease-file"

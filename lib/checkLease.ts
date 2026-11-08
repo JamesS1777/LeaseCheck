@@ -14,7 +14,7 @@ export const ACCEPTED_TYPES = [
   "image/heic",
   "image/heif",
 ];
-export const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+export const MAX_BYTES = 15 * 1024 * 1024; // 15 MB, same as /api/check
 
 /** Returns a user-facing error message, or null if the file looks OK. */
 export function validateFile(file: File): string | null {
@@ -22,7 +22,7 @@ export function validateFile(file: File): string | null {
     return "That file type isn't supported. Upload a PDF or a photo (JPG, PNG, WebP or HEIC).";
   }
   if (file.size > MAX_BYTES) {
-    return "That file is over 10 MB. Try a smaller PDF or a lower-resolution photo.";
+    return "That file is over 15 MB. Try a smaller PDF or a lower-resolution photo.";
   }
   return null;
 }
@@ -42,9 +42,13 @@ export async function checkLease(file: File): Promise<CheckResult> {
     throw new Error("Your session expired. Sign in again, then re-upload your lease.");
   }
   if (!res.ok) {
-    // /api/check sends plain-English messages (too big, wrong type, AI failed).
-    const data = await res.json().catch(() => null);
-    throw new Error(data?.error ?? "We couldn't check that lease. Try again in a minute.");
+    // /api/check sends a readable reason, e.g. for the Adobe-only Ontario form (422).
+    let message = "We couldn't check that lease. Try again in a minute.";
+    try {
+      const data = await res.json();
+      if (typeof data?.error === "string" && data.error.trim()) message = data.error;
+    } catch {}
+    throw new Error(message);
   }
   return (await res.json()) as CheckResult;
 }
