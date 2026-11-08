@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { CheckResult } from "@/lib/types";
 import { checkLease } from "@/lib/checkLease";
+import AppTabs from "./AppTabs";
+import HistoryView from "./HistoryView";
 import UploadForm from "./UploadForm";
 import LoadingState from "./LoadingState";
 import ResultsView from "./ResultsView";
@@ -12,7 +14,8 @@ import ContrastToggle from "./ContrastToggle";
 type State =
   | { step: "upload"; error?: string }
   | { step: "loading"; fileName: string }
-  | { step: "results"; fileName: string; result: CheckResult };
+  | { step: "results"; fileName: string; result: CheckResult }
+  | { step: "history" };
 
 /**
  * The whole signed-in experience: upload → loading → results.
@@ -50,6 +53,13 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
         </div>
       </header>
 
+      <AppTabs
+        current={state.step === "history" ? "history" : "new"}
+        disabled={state.step === "loading"}
+        onNew={() => setState({ step: "upload" })}
+        onHistory={() => setState({ step: "history" })}
+      />
+
       <main id="main" className="lc-wrap">
         {state.step === "upload" && (
           <section className="lc-hero" aria-labelledby="hero-title">
@@ -71,6 +81,10 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
             fileName={state.fileName}
             onReset={() => setState({ step: "upload" })}
           />
+        )}
+
+        {state.step === "history" && (
+          <HistoryView onOpen={(fileName, result) => setState({ step: "results", fileName, result })} />
         )}
       </main>
     </>

@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   experimental: {
-    // proxy.ts buffers request bodies (default 10 MB). Leave room for a
-    // 10 MB lease photo plus form overhead (see MAX_BYTES in lib/fileCheck.ts).
-    proxyClientMaxBodySize: "12mb",
+    // proxy.ts buffers request bodies (default 10 MB). Leave room for a 15 MB
+    // lease (MAX_BYTES in app/api/check/route.ts) plus form overhead.
+    proxyClientMaxBodySize: "16mb",
   },
 };
 
