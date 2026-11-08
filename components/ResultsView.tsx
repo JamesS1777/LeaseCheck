@@ -10,6 +10,7 @@ import { useReadAloud } from "./useReadAloud";
 interface Props {
   result: CheckResult;
   fileName?: string;
+  savedAt?: number; // set when opened from history
   onReset: () => void;
 }
 
@@ -17,7 +18,7 @@ function normalizeSpace(s: string) {
   return s.replace(/\s+/g, " ");
 }
 
-export default function ResultsView({ result, fileName, onReset }: Props) {
+export default function ResultsView({ result, fileName, savedAt, onReset }: Props) {
   // Order cards by where they appear in the lease, so card 1 = first highlight.
   const matches = useMemo(() => {
     const flat = normalizeSpace(result.leaseText);
@@ -80,7 +81,12 @@ export default function ResultsView({ result, fileName, onReset }: Props) {
     <div className="lc-results">
       <section className="lc-summary" aria-labelledby="summary-title">
         <div>
-          <p className="lc-eyebrow">{fileName ? `Results for ${fileName}` : "Results"}</p>
+          <p className="lc-eyebrow">
+            {fileName ? `Results for ${fileName}` : "Results"}
+            {savedAt
+              ? ` · checked ${new Date(savedAt).toLocaleString("en-CA", { dateStyle: "medium", timeStyle: "short" })}`
+              : ""}
+          </p>
           <h2 id="summary-title" ref={headingRef} tabIndex={-1}>
             {summary}
           </h2>

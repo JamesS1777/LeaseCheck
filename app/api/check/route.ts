@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth0";
 import { analyzeLease, LeaseCheckError } from "@/lib/analyzeLease";
+import { saveReport } from "@/lib/reports";
 
 export const maxDuration = 60; // Gemini can take ~30 s
 
@@ -44,7 +45,15 @@ export async function POST(req: Request) {
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const result = await analyzeLease(bytes, file.type);
-    return NextResponse.json(result);
+
+    // James: save to the user's history. A history failure never breaks the check.
+    let reportId: string | undefined;
+    try {
+      reportId = saveReport(session.user.sub, file.name, result);
+    } catch (e) {
+      console.error("[/api/check] couldn't save report:", e instanceof Error ? e.message : e);
+    }
+    return NextResponse.json({ ...result, reportId });
   } catch (err) {
     console.error("[/api/check]", err);
     const status = err instanceof LeaseCheckError ? err.status : 500;

@@ -9,11 +9,12 @@ import ResultsView from "./ResultsView";
 import Disclaimer from "./Disclaimer";
 import ContrastToggle from "./ContrastToggle";
 import VoicePicker from "./VoicePicker";
+import HistoryList from "./HistoryList";
 
 type State =
   | { step: "upload"; error?: string }
   | { step: "loading"; fileName: string }
-  | { step: "results"; fileName: string; result: CheckResult };
+  | { step: "results"; fileName: string; result: CheckResult; savedAt?: number };
 
 /**
  * The whole signed-in experience: upload → loading → results.
@@ -59,6 +60,11 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
             <p className="lc-lede">Upload your lease. We&apos;ll flag anything that may break Ontario rules.</p>
             <UploadForm onSubmit={handleSubmit} error={state.error} />
             <Disclaimer />
+            <HistoryList
+              onOpen={(result, fileName, savedAt) =>
+                setState({ step: "results", fileName, result, savedAt })
+              }
+            />
           </section>
         )}
 
@@ -68,6 +74,7 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
           <ResultsView
             result={state.result}
             fileName={state.fileName}
+            savedAt={state.savedAt}
             onReset={() => setState({ step: "upload" })}
           />
         )}
