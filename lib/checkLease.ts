@@ -42,7 +42,9 @@ export async function checkLease(file: File): Promise<CheckResult> {
     throw new Error("Your session expired. Sign in again, then re-upload your lease.");
   }
   if (!res.ok) {
-    throw new Error("We couldn't check that lease. Try again in a minute.");
+    // /api/check sends plain-English messages (too big, wrong type, AI failed).
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "We couldn't check that lease. Try again in a minute.");
   }
   return (await res.json()) as CheckResult;
 }
