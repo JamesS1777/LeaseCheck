@@ -2,6 +2,7 @@
   {
     "id": "illegal_deposit",
     "name": "Deposit that isn't allowed",
+    "level": "important",
     "what_to_flag": "A clause requiring a damage, security, pet, cleaning or any other deposit besides a rent deposit and a key deposit; a key deposit higher than the cost of replacing the keys; or a rent deposit that is more than one month's rent or that the landlord can use to pay for damage.",
     "explanation": "In Ontario, a landlord can only ask for two deposits: a rent deposit (no more than one month's rent, used for your last month) and a refundable key deposit. Damage, pet and security deposits aren't allowed, and the rent deposit can't be used to cover damage.",
     "question": "Ontario only allows a last month's rent deposit and a refundable key deposit. Can we remove this deposit from the lease?",
@@ -11,6 +12,7 @@
   {
     "id": "no_pets",
     "name": "Ban on pets",
+    "level": "ask",
     "what_to_flag": "A clause that bans pets, or bans all pets of a certain kind, or says the tenant can be evicted just for having a pet.",
     "explanation": "A clause that bans pets is void in most Ontario rentals, so the landlord can't enforce it. The main exception is a condo: the condo's own rules can restrict some pets, and you'd have to follow those.",
     "question": "No-pet clauses can't be enforced in most Ontario rentals. Is this unit in a condo with its own pet rules, and if not, can we remove this clause?",
@@ -20,6 +22,7 @@
   {
     "id": "tenant_repairs",
     "name": "Tenant pays for the landlord's repairs",
+    "level": "important",
     "what_to_flag": "A clause making the tenant pay for or do repairs or maintenance that are the landlord's job (for example all repairs, appliances, plumbing, heating, the roof, or normal wear and tear). Do NOT flag a clause that only makes the tenant pay for damage the tenant or their guests caused.",
     "explanation": "Your landlord must keep the unit and building in good repair. You only have to pay for damage that you or your guests cause. A clause that makes you pay for repairs that are the landlord's job is void.",
     "question": "In Ontario, repairs and maintenance are the landlord's responsibility unless I caused the damage. Can we change this clause to say that?",
@@ -29,6 +32,7 @@
   {
     "id": "not_standard_lease",
     "name": "Not on the Ontario Standard Lease",
+    "level": "ask",
     "what_to_flag": "The whole document is clearly NOT Ontario's government Standard Form of Lease (the official form is titled 'Residential Tenancy Agreement (Standard Form of Lease)', form 2229E, and has numbered government sections such as 'Parties to the Agreement' and 'Rent Deposit'). Flag this at most once, quoting the document's title line exactly.",
     "explanation": "Most Ontario rentals signed since April 30, 2018 must use the government's standard lease (some housing, like co-ops and most social housing, is exempt). If you ask in writing, your landlord has 21 days to give you one. If they don't, you can hold back one month's rent.",
     "question": "Ontario requires the standard lease form for most rentals. Can we sign the lease on the official standard form instead?",
@@ -38,6 +42,7 @@
   {
     "id": "post_dated_cheques",
     "name": "Required post-dated cheques",
+    "level": "ask",
     "what_to_flag": "A clause that requires the tenant to give post-dated cheques or to set up automatic payments (pre-authorized debit or credit card) as a condition of renting.",
     "explanation": "A landlord can't make you give post-dated cheques or sign up for automatic payments. You can choose to pay that way, but the lease can't require it.",
     "question": "Ontario landlords can't require post-dated cheques or automatic payments. Can I pay rent another way, like e-transfer each month?",
@@ -47,6 +52,7 @@
   {
     "id": "end_anytime",
     "name": "Landlord can end the lease whenever",
+    "level": "important",
     "what_to_flag": "A clause letting the landlord end the tenancy, evict the tenant, or make the tenant leave at any time, for any reason, or with short notice outside the legal process.",
     "explanation": "A landlord can only end a tenancy for reasons the law allows, using an official Landlord and Tenant Board notice. Even then, you don't have to move out unless the Board orders it. A clause that lets the landlord end the lease whenever they want is void.",
     "question": "In Ontario a landlord can only end a tenancy through the Landlord and Tenant Board process. Can we remove this clause?",
@@ -56,6 +62,7 @@
   {
     "id": "rent_increase",
     "name": "Rent increase that may break the rules",
+    "level": "important",
     "what_to_flag": "A clause that sets automatic rent increases, an increase above the yearly guideline (2.1% for 2026, 1.9% for 2027), more than one increase in 12 months, or an increase without 90 days' written notice. Do NOT flag a clause that only says rent may be increased as allowed by law.",
     "explanation": "Rent can only go up once every 12 months, with at least 90 days' written notice on the official form. For most units first occupied before November 15, 2018, the increase also can't be more than the yearly guideline: 2.1% for 2026 and 1.9% for 2027.",
     "question": "When was this unit first occupied? If it was before November 15, 2018, can we make sure any increase follows the yearly guideline and the 90-day notice rule?",
@@ -65,6 +72,7 @@
   {
     "id": "forced_cleaning",
     "name": "Required professional cleaning",
+    "level": "important",
     "what_to_flag": "A clause requiring the tenant to pay for professional cleaning (carpets, the whole unit, move-out cleaning) or a cleaning fee, regardless of the unit's condition. Do NOT flag a clause that only asks the tenant to keep the unit reasonably clean.",
     "explanation": "You have to keep the unit reasonably clean, but a lease generally can't make you pay for professional cleaning or a cleaning fee. Extra fees that the law doesn't allow can't be added to a lease.",
     "question": "I'll leave the unit clean, but Ontario leases generally can't require paid professional cleaning. Can we remove this requirement?",
@@ -74,6 +82,7 @@
   {
     "id": "landlord_entry",
     "name": "Landlord entry without proper notice",
+    "level": "important",
     "what_to_flag": "A clause letting the landlord enter the unit at any time, without notice, with less than 24 hours' written notice, or outside 8 a.m. to 8 p.m., other than in an emergency or with the tenant's consent at the time. Do NOT flag a clause that gives 24 hours' written notice between 8 a.m. and 8 p.m.",
     "explanation": "Except in an emergency or if you agree at the time, your landlord must give you at least 24 hours' written notice that says why they are coming in, and can only enter between 8 a.m. and 8 p.m.",
     "question": "Ontario requires 24 hours' written notice and entry between 8 a.m. and 8 p.m., except in emergencies. Can we change this clause to match that?",
@@ -83,6 +92,7 @@
   {
     "id": "guest_ban",
     "name": "Ban on guests",
+    "level": "ask",
     "what_to_flag": "A clause that bans or limits guests or overnight visitors, requires the landlord's permission for guests, or charges a fee for guests. Do NOT flag a clause that only makes the tenant responsible for damage or disturbance caused by their guests.",
     "explanation": "A landlord can't ban guests or overnight visitors, so a clause like this is void. You are still responsible for your guests' behaviour and any damage they cause.",
     "question": "Ontario leases can't ban guests. Can we remove this clause?",

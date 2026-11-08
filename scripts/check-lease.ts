@@ -48,6 +48,12 @@ async function main() {
   console.log(`${result.droppedCount} Gemini quote(s) dropped by the quote check\n`);
   for (const m of result.matches) console.log(`  [${m.rule_id}] "${m.quote}"`);
 
+  const sum = result.summary;
+  console.log(`\nSummary: ${sum.headline}  [${sum.verdict}]`);
+  console.log(`  ${sum.detail}`);
+  sum.questions.forEach((q, i) => console.log(`  Q${i + 1} (${q.level}) ${q.question}`));
+  sum.nextSteps.forEach((s) => console.log(`  - ${s}`));
+
   const name = path.split(/[\\/]/).pop()!;
   const expected = EXPECTED[name];
   if (expected) {
