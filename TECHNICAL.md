@@ -27,6 +27,12 @@ LeaseCheck reads an Ontario rental lease (PDF or photo) and flags clauses that m
    - A kept quote is returned exactly as it appears in `leaseText`, with `start`/`end` positions, so the frontend can highlight it directly.
 5. For each kept match, the code attaches the plain-English explanation, the question to ask the landlord and the source link from `rules.json`. **Gemini never writes what the user reads.**
 6. The response reports `droppedCount`, the number of Gemini quotes that failed the check.
+7. **The final summary** (`lib/summary.ts`) is built by the code from the verified flags, not by Gemini, so it can only say what the checks found. Each rule in `rules.json` has a `level`: `important` (could cost money or affect your home or privacy: deposits, repairs, rent increases, cleaning fees, eviction, entry) or `ask` (void but less likely to hurt: pets, guests, post-dated cheques, the standard form). The verdict is:
+   - `no_issues`: nothing flagged ("No problems found in the clauses we check", with a reminder that it can't catch everything).
+   - `ask_first`: only `ask` flags ("A few things to ask about before you sign").
+   - `talk_before_signing`: at least one `important` flag ("Talk to your landlord before you sign").
+
+   The summary also gathers every question to ask the landlord into one list (important ones first, one per rule) and gives next steps: get answers in writing, ask for the standard form if it's missing, and contact Legal Aid Ontario or the Landlord and Tenant Board when something important is flagged.
 
 ### Response shape
 
@@ -47,12 +53,23 @@ LeaseCheck reads an Ontario rental lease (PDF or photo) and flags clauses that m
     }
   ],
   "droppedCount": 0,
+  "summary": {
+    "verdict": "talk_before_signing",
+    "headline": "Talk to your landlord before you sign",
+    "detail": "We found 4 clauses that could cost you money or affect your rights: ...",
+    "counts": { "total": 7, "important": 4, "ask": 3 },
+    "questions": [
+      { "rule_id": "illegal_deposit", "name": "Deposit that isn't allowed", "level": "important", "question": "..." }
+    ],
+    "nextSteps": ["Send your landlord the questions below by email or text, ..."],
+    "disclaimer": "This is not legal advice. ..."
+  },
   "verifiedAgainst": "pdf_text",
   "model": "gemini-3.6-flash"
 }
 ```
 
-`source_name`, `start`, `end`, `verifiedAgainst` and `model` are additions to the agreed shape; the rest is unchanged. Matches are in lease order.
+`summary`, `source_name`, `start`, `end`, `verifiedAgainst` and `model` are additions to the agreed shape; the rest is unchanged. Matches are in lease order.
 
 ## Rules
 
