@@ -272,3 +272,14 @@ a { color: var(--lc-accent); text-underline-offset: 3px; }
 .lc-ask-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--lc-muted); }
 .lc-ask p { font-weight: 600; }
 .lc-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 0.95rem; }
+
+/* Voice picker */
+.lc-voice { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lc-select { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; }
+.lc-select select {
+  font: inherit; font-weight: 500; min-height: 40px; padding: 4px 10px;
+  border-radius: 8px; border: var(--lc-border-w) solid var(--lc-line);
+  background: var(--lc-surface); color: var(--lc-ink);
+}
+:root[data-contrast="high"] .lc-select select { border-color: #000; }
+.lc-icon-btn-sm { width: 40px; height: 40px; font-size: 0.9rem; }

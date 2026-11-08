@@ -1,5 +1,6 @@
 import type { CheckResult } from "./types";
 import mock from "@/mock-result.json";
+import mockClean from "@/mock-clean-result.json";
 
 // Flip to false once Samuel's /api/check returns real JSON (sync point 3).
 // Or set NEXT_PUBLIC_USE_MOCK=false in .env.local.
@@ -29,7 +30,8 @@ export function validateFile(file: File): string | null {
 export async function checkLease(file: File): Promise<CheckResult> {
   if (USE_MOCK) {
     await new Promise((r) => setTimeout(r, 2500)); // pretend to think
-    return mock as CheckResult;
+    // For demo practice: a file with "clean" or "standard" in its name gets the no-flags result.
+    return (/clean|standard/i.test(file.name) ? mockClean : mock) as CheckResult;
   }
 
   const body = new FormData();

@@ -8,6 +8,7 @@ import LoadingState from "./LoadingState";
 import ResultsView from "./ResultsView";
 import Disclaimer from "./Disclaimer";
 import ContrastToggle from "./ContrastToggle";
+import VoicePicker from "./VoicePicker";
 
 type State =
   | { step: "upload"; error?: string }
@@ -44,6 +45,7 @@ export default function LeaseCheckApp({ account }: { account?: React.ReactNode }
             <span aria-hidden="true">✓</span> LeaseCheck
           </p>
           <div className="lc-topbar-actions">
+            <VoicePicker />
             <ContrastToggle />
             {account}
           </div>
